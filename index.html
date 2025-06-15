@@ -1,105 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Helldivers Random Stratagem Picker</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Random Helldivers Stratagems</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    background: #121212;
+    color: #eee;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .stratagems {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+  }
+  .stratagem {
+    background: #222;
+    border-radius: 8px;
+    padding: 1rem;
+    width: 220px;
+    text-align: center;
+    box-shadow: 0 0 8px #00ff99aa;
+    transition: transform 0.2s ease;
+  }
+  .rare, .rare .card-back {
+    background: #222;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow:
+      0 0 8px 2px #ff0000,    /* red */
+      0 0 12px 4px #ff7f00,   /* orange */
+      0 0 16px 6px #ffff00,   /* yellow */
+      0 0 20px 8px #00ff00,   /* green */
+      0 0 24px 10px #0000ff,  /* blue */
+      0 0 28px 12px #4b0082,  /* indigo */
+      0 0 32px 14px #8b00ff;  /* violet */
+    transition: transform 0.2s ease;
+  }
+  .stratagem:hover {
+    transform: scale(1.05);
+  }
+  .stratagem img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+  }
+  .name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+  }
+  .category {
+    font-style: italic;
+    color: #66ffcc;
+  }
+
+  #randomBtn {
+    background: linear-gradient(to right, #ff0080, #7928ca);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 1rem auto;
+    margin-top: 50px;
+    display: block;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 12px #ff00ff99;
+  }
+
+  #randomBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px #ff00ffcc;
+  }
+
+
+.card-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.card {
+  width: 220px;
+  height: 165px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-front {
+  background: #111;
+  box-shadow: 0 0 16px #0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0ff;
+  font-size: 1.2rem;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  background: #222;
+  box-shadow: 0 0 24px 6px #00ffcc;
+  text-align: center;
+  padding: 1rem;
+}
+
+.card-back img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+.card-back .name {
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: #fff;
+}
+
+.card-back .category {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+</style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-6">
-  <h1 class="text-3xl font-bold mb-6 text-yellow-400">🎯 Helldivers Stratagem Picker</h1>
+<body>
 
-  <div id="results" class="grid gap-4 w-full max-w-md"></div>
+<h1>Random Helldivers Stratagems</h1>
+<div id="stratagems" class="card-grid"></div>
+<button id="randomBtn">🎲 Random</button>
 
-  <button
-    onclick="pickStratagems()"
-    class="mt-6 px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-xl transition"
-  >
-    🔄 Reroll 4 Random Stratagems
-  </button>
+<script>
+const stratagems = [
+  { name: "Flame Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/0/0e/A_FLAM-40_Flame_Sentry_Stratagem_Icon.png" },
+  { name: "EMS Mortar Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/a/a8/AM-23_EMS_Mortar_Sentry_Stratagem_Icon.png" },
+  { name: "Anti-Materiel Rifle", category: "Supply", icon: "https://helldivers.wiki.gg/images/3/3c/Anti-Materiel_Rifle_Stratagem_Icon.png" },
+  { name: "Anti-Personnel Minefield", category: "Defensive", icon: "https://helldivers.wiki.gg/images/b/bb/Anti-Personnel_Minefield_Stratagem_Icon.png" },
+  { name: "Arc Thrower", category: "Supply", icon: "https://helldivers.wiki.gg/images/1/10/Arc_Thrower_Stratagem_Icon.png" },
+  { name: "Autocannon Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/a/a7/Autocannon_Sentry_Stratagem_Icon.png" },
+  { name: "Autocannon", category: "Supply", icon: "https://helldivers.wiki.gg/images/e/ef/Autocannon_Stratagem_Icon.png" },
+  { name: "Ballistic Shield Backpack", category: "Supply", icon: "https://helldivers.wiki.gg/images/3/37/Ballistic_Shield_Backpack_Stratagem_Icon.png" },
+  { name: "Commando", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/78/Commando_Stratagem_Icon.png" },
+  { name: "De-Escalator", category: "Supply", icon: "https://helldivers.wiki.gg/images/8/87/GL-52_De-Escalator_Stratagem_Icon.png" },
+  { name: "Anti‑Tank Emplacement", category: "Defensive", icon: "https://helldivers.wiki.gg/images/6/62/E_AT-12_Anti-Tank_Emplacement_Stratagem_Icon.png" },
+  { name: "Eagle 110mm Rocket Pods", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/e/ef/Eagle_110mm_Rocket_Pods_Stratagem_Icon.png" },
+  { name: "Eagle 500kg Bomb", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/e/e5/Eagle_500kg_Bomb_Stratagem_Icon.png" },
+  { name: "Eagle Airstrike", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/7/72/Eagle_Airstrike_Stratagem_Icon.png" },
+  { name: "Eagle Cluster Bomb", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/4/4f/Eagle_Cluster_Bomb_Stratagem_Icon.png" },
+  { name: "Eagle Napalm Airstrike", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/4/42/Eagle_Napalm_Airstrike_Stratagem_Icon.png" },
+  { name: "Eagle Smoke Strike", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/0/05/Eagle_Smoke_Strike_Stratagem_Icon.png" },
+  { name: "Eagle Strafing Run", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/f/f3/Eagle_Strafing_Run_Stratagem_Icon.png" },
+  { name: "EXO-45 Patriot Exosuit", category: "Supply", icon: "https://helldivers.wiki.gg/images/3/30/EXO-45_Patriot_Exosuit_Stratagem_Icon.png" },
+  { name: "EXO-49 Emancipator Exosuit", category: "Supply", icon: "https://helldivers.wiki.gg/images/8/82/EXO-49_Emancipator_Exosuit_Stratagem_Icon.png" },
+  { name: "Expendable Anti-Tank", category: "Supply", icon: "https://helldivers.wiki.gg/images/1/1c/Expendable_Anti-Tank_Stratagem_Icon.png" },
+  { name: "Flamethrower", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/75/Flamethrower_Stratagem_Icon.png" },
+  { name: "Gas Mines", category: "Defensive", icon: "https://helldivers.wiki.gg/images/1/13/Gas_Minefield_Stratagem_Icon.png" },
+  { name: "Grenadier Battlement", category: "Defensive", icon: "https://helldivers.wiki.gg/images/3/3f/GL-21_Grenadier_Battlement_Stratagem_Icon.png" },
+  { name: "Gatling Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/2/28/Gatling_Sentry_Stratagem_Icon.png" },
+  { name: "Grenade Launcher", category: "Supply", icon: "https://helldivers.wiki.gg/images/c/cf/Grenade_Launcher_Stratagem_Icon.png" },
+  { name: "Guard Dog Breath", category: "Supply", icon: "https://helldivers.wiki.gg/images/2/20/Guard_Dog_Dog_Breath_Stratagem_Icon.png" },
+  { name: "Guard Dog Rover", category: "Supply", icon: "https://helldivers.wiki.gg/images/6/6f/Guard_Dog_Rover_Stratagem_Icon.png" },
+  { name: "Guard Dog", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/73/Guard_Dog_Stratagem_Icon.png" },
+  { name: "Heavy Machine Gun", category: "Supply", icon: "https://helldivers.wiki.gg/images/d/d9/Heavy_Machine_Gun_Stratagem_Icon.png" },
+  { name: "HMG Emplacement", category: "Defensive", icon: "https://helldivers.wiki.gg/images/0/03/HMG_Emplacement_Stratagem_Icon.png" },
+  { name: "Hover Pack", category: "Supply", icon: "https://helldivers.wiki.gg/images/5/5d/Hover_Pack_Stratagem_Icon.png" },
+  { name: "Incendiary Mines", category: "Defensive", icon: "https://helldivers.wiki.gg/images/4/40/Incendiary_Mines_Stratagem_Icon.png" },
+  { name: "Jump Pack", category: "Supply", icon: "https://helldivers.wiki.gg/images/f/f5/Jump_Pack_Stratagem_Icon.png" },
+  { name: "Laser Cannon", category: "Supply", icon: "https://helldivers.wiki.gg/images/c/c3/Laser_Cannon_Stratagem_Icon.png" },
+  { name: "Fast Recon Vehicle", category: "Supply", icon: "https://helldivers.wiki.gg/images/0/00/M-102_Fast_Recon_Vehicle_Stratagem_Icon.png" },
+  { name: "Machine Gun Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/5/5a/Machine_Gun_Sentry_Stratagem_Icon.png" },
+  { name: "Machine Gun", category: "Supply", icon: "https://helldivers.wiki.gg/images/e/e0/Machine_Gun_Stratagem_Icon.png" },
+  { name: "Anti‑Tank Mines", category: "Defensive", icon: "https://helldivers.wiki.gg/images/b/ba/MD-17_Anti-Tank_Mines_Stratagem_Icon.png" },
+  { name: "Mortar Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/a/ad/Mortar_Sentry_Stratagem_Icon.png" },
+  { name: "Orbital 120mm HE Barrage", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/4/40/Orbital_120mm_HE_Barrage_Stratagem_Icon.png" },
+  { name: "Orbital 380mm HE Barrage", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/1/12/Orbital_380mm_HE_Barrage_Stratagem_Icon.png" },
+  { name: "Orbital Airburst Strike", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/2/28/Orbital_Airburst_Strike_Stratagem_Icon.png" },
+  { name: "Orbital EMS Strike", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/1/16/Orbital_EMS_Strike_Stratagem_Icon.png" },
+  { name: "Orbital Gas Strike", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/c/cd/Orbital_Gas_Strike_Stratagem_Icon.png" },
+  { name: "Orbital Gatling Barrage", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/f/f6/Orbital_Gatling_Barrage_Stratagem_Icon.png" },
+  { name: "Orbital Laser", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/d/d8/Orbital_Laser_Stratagem_Icon.png" },
+  { name: "Orbital Napalm Barrage", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/9/97/Orbital_Napalm_Barrage_Stratagem_Icon.png" },
+  { name: "Orbital Precision Strike", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/2/2a/Orbital_Precision_Strike_Stratagem_Icon.png" },
+  { name: "Orbital Railcannon Strike", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/6/6f/Orbital_Railcannon_Strike_Stratagem_Icon.png" },
+  { name: "Orbital Smoke Strike", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/b/bc/Orbital_Smoke_Strike_Stratagem_Icon.png" },
+  { name: "Orbital Walking Barrage", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/5/53/Orbital_Walking_Barrage_Stratagem_Icon.png" },
+  { name: "Portable Hellbomb", category: "Supply", icon: "https://helldivers.wiki.gg/images/a/aa/Portable_Hellbomb_Stratagem_Icon.png" },
+  { name: "Quasar Cannon", category: "Supply", icon: "https://helldivers.wiki.gg/images/8/87/Quasar_Cannon_Stratagem_Icon.png" },
+  { name: "Railgun", category: "Supply", icon: "https://helldivers.wiki.gg/images/3/35/Railgun_Stratagem_Icon.png" },
+  { name: "Recoilless Rifle", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/70/Recoilless_Rifle_Stratagem_Icon.png" },
+  { name: "Airburst Rocket Launcher", category: "Supply", icon: "https://helldivers.wiki.gg/images/a/ad/RL-77_Airburst_Rocket_Launcher_Stratagem_Icon.png" },
+  { name: "Rocket Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/6/62/Rocket_Sentry_Stratagem_Icon.png" },
+  { name: "Directional Shield", category: "Defensive", icon: "https://helldivers.wiki.gg/images/b/b7/SH-51_Directional_Shield_Stratagem_Icon.png" },
+  { name: "Shield Generator Pack", category: "Supply", icon: "https://helldivers.wiki.gg/images/9/99/Shield_Generator_Pack_Stratagem_Icon.png" },
+  { name: "Shield Generator Relay", category: "Defensive", icon: "https://helldivers.wiki.gg/images/e/e4/Shield_Generator_Relay_Stratagem_Icon.png" },
+  { name: "Spear", category: "Supply", icon: "https://helldivers.wiki.gg/images/5/54/Spear_Stratagem_Icon.png" },
+  { name: "StA-X3 W.A.S.P. Launcher", category: "Supply", icon: "https://helldivers.wiki.gg/images/a/af/StA-X3_W.A.S.P._Launcher_Stratagem_Icon.png" },
+  { name: "Stalwart", category: "Supply", icon: "https://helldivers.wiki.gg/images/4/46/Stalwart_Stratagem_Icon.png" },
+  { name: "Supply Pack", category: "Supply", icon: "https://helldivers.wiki.gg/images/6/61/Supply_Pack_Stratagem_Icon.png" },
+  { name: "Sterilizer", category: "Supply", icon: "https://helldivers.wiki.gg/images/2/29/Sterilizer_Stratagem_Icon.png" },
+  { name: "Tesla Tower", category: "Defensive", icon: "https://helldivers.wiki.gg/images/8/8f/Tesla_Tower_Stratagem_Icon.png" }
+];
 
-  <script>
-    const stratagems = {
-      "Offensive – Orbital": [
-        "Precision Strike", "Gatling Barrage", "Airburst Strike", "Napalm Barrage",
-        "120 MM HE Barrage", "Walking Barrage", "380 MM HE Barrage", "Railcannon Strike",
-        "Laser", "EMS Strike", "Gas Strike", "Smoke Strike"
-      ],
-      "Offensive – Eagle": [
-        "Strafing Run", "500 kg Bomb", "110 MM Rocket Pods", "Airstrike",
-        "Cluster Bomb", "Napalm Airstrike", "Smoke Strike"
-      ],
-      "Supply": [
-        "MG‑43 Machine Gun", 
-        "Heavy Machine Gun", 
-        "APW‑1 Anti‑Material Rifle",
-        "RL-77 Airburst Rocket Launcher",
-        "M‑105 Stalwart", 
-        "Flamethrower", 
-        "Autocannon", 
-        "Railgun", 
-        "Spear Launcher",
-        "Grenade Launcher", 
-        "Laser Cannon", 
-        "Quasar Cannon", 
-        "MLS-4X Commando",
-        "Arc Thrower",
-        "Jump Pack", 
-        "Supply Pack", 
-        "Ballistic Shield Backpack", 
-        "Guard Dog Rover",
-        "Patriot Exosuit", 
-        "Exo‑45",
-        "GR-8 Recoilless Rifle",
-        "StA-X3 W.A.S.P. Launcher",
-        "M-102 Fast Recon Vehicle"
-      ],
-      "Defensive": [
-        "Machine Gun Sentry", "Gatling Sentry", "Autocannon Sentry", "Mortar Sentry",
-        "Rocket Sentry", "EMS Sentry", "HMG Emplacement", "Tesla Tower", 
-        "Anti‑Personnel Minefield", "Incendiary Mines", "Gas Mines", "Shield Generator Pack"
-      ]
-    };
-
-    function getRandomStratagem() {
-      const categories = Object.keys(stratagems);
-      const category = categories[Math.floor(Math.random() * categories.length)];
-      const stratagem = stratagems[category][Math.floor(Math.random() * stratagems[category].length)];
-      return { category, stratagem };
+// Pick 4 unique random stratagems
+function pickRandomStratagems(arr, count) {
+  const result = [];
+  const usedIndices = new Set();
+  while (result.length < count && result.length < arr.length) {
+    const i = Math.floor(Math.random() * arr.length);
+    if (!usedIndices.has(i)) {
+      usedIndices.add(i);
+      result.push(arr[i]);
     }
+  }
+  return result;
+}
 
-    function pickStratagems() {
-      const seen = new Set();
-      const result = [];
+function displayStratagems() {
+  const container = document.getElementById("stratagems");
+  container.innerHTML = "";
 
-      while (result.length < 4) {
-        const { category, stratagem } = getRandomStratagem();
-        const key = `${category}-${stratagem}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          result.push({ category, stratagem });
-        }
-      }
+  const chosen = pickRandomStratagems(stratagems, 4);
+  const rareStratagems = [
+    "Orbital Napalm Barrage",
+    "Orbital 380mm HE Barrage",
+    "Recoilless Rifle",
+    "Rocket Sentry",
+    "Autocannon Sentry",
+    "Shield Generator Pack"
+  ];
 
-      render(result);
-    }
+  chosen.forEach(s => {
+    const div = document.createElement("div");
+  
+    div.className = rareStratagems.includes(s.name) 
+      ? "stratagem rare card"
+      : "stratagem card";
 
-    function render(stratagems) {
-      const container = document.getElementById("results");
-      container.innerHTML = "";
+    div.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front">Click to Reveal</div>
+        <div class="card-back">
+          <img src="${s.icon}" alt="${s.name} Icon" />
+          <div class="name">${s.name}</div>
+          <div class="category">${s.category}</div>
+        </div>
+      </div>
+    `;
 
-      stratagems.forEach(({ category, stratagem }, i) => {
-        const div = document.createElement("div");
-        div.className = "bg-gray-800 p-4 rounded-lg shadow-lg";
-        div.innerHTML = `
-          <h2 class="text-xl font-bold text-yellow-300 mb-1">${i + 1}. ${stratagem}</h2>
-          <p class="text-sm text-gray-300">${category}</p>
-        `;
-        container.appendChild(div);
-      });
-    }
+    // Flip on click
+    div.addEventListener("click", () => {
+      div.classList.toggle("flipped");
+    });
 
-    // Pick on load
-    pickStratagems();
-  </script>
+    container.appendChild(div);
+  });
+}
+
+document.getElementById("randomBtn").addEventListener("click", displayStratagems);
+window.onload = displayStratagems;
+</script>
+
 </body>
 </html>
