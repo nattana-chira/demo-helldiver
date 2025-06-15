@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Helldivers Random Stratagem Picker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-6">
+  <h1 class="text-3xl font-bold mb-6 text-yellow-400">🎯 Helldivers Stratagem Picker</h1>
+
+  <div id="results" class="grid gap-4 w-full max-w-md"></div>
+
+  <button
+    onclick="pickStratagems()"
+    class="mt-6 px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-xl transition"
+  >
+    🔄 Reroll 4 Random Stratagems
+  </button>
+
+  <script>
+    const stratagems = {
+      "Offensive – Orbital": [
+        "Precision Strike", "Gatling Barrage", "Airburst Strike", "Napalm Barrage",
+        "120 MM HE Barrage", "Walking Barrage", "380 MM HE Barrage", "Railcannon Strike",
+        "Laser", "EMS Strike", "Gas Strike", "Smoke Strike"
+      ],
+      "Offensive – Eagle": [
+        "Strafing Run", "500 kg Bomb", "110 MM Rocket Pods", "Airstrike",
+        "Cluster Bomb", "Napalm Airstrike", "Smoke Strike"
+      ],
+      "Supply": [
+        "MG‑43 Machine Gun", "Heavy Machine Gun", "APW‑1 Anti‑Material Rifle",
+        "M‑105 Stalwart", "Flamethrower", "Autocannon", "Railgun", "Spear Launcher",
+        "Grenade Launcher", "Laser Cannon", "Quasar Cannon", "Arc Thrower",
+        "Jump Pack", "Supply Pack", "Ballistic Shield Backpack", "Guard Dog Rover",
+        "Patriot Exosuit", "Exo‑45"
+      ],
+      "Defensive": [
+        "Machine Gun Sentry", "Gatling Sentry", "Autocannon Sentry", "Mortar Sentry",
+        "Rocket Sentry", "EMS Sentry", "HMG Emplacement", "Tesla Tower", 
+        "Anti‑Personnel Minefield", "Incendiary Mines", "Gas Mines", "Shield Generator Pack"
+      ],
+      "Mission": [
+        "Reinforce", "SOS Beacon", "Resupply", "Hellbomb", "SSSD Delivery",
+        "Seismic Probe", "Upload Data", "Eagle Rearm", "SEAF Artillery",
+        "Super Earth Flag", "Prospecting Drill"
+      ]
+    };
+
+    function getRandomStratagem() {
+      const categories = Object.keys(stratagems);
+      const category = categories[Math.floor(Math.random() * categories.length)];
+      const stratagem = stratagems[category][Math.floor(Math.random() * stratagems[category].length)];
+      return { category, stratagem };
+    }
+
+    function pickStratagems() {
+      const seen = new Set();
+      const result = [];
+
+      while (result.length < 4) {
+        const { category, stratagem } = getRandomStratagem();
+        const key = `${category}-${stratagem}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          result.push({ category, stratagem });
+        }
+      }
+
+      render(result);
+    }
+
+    function render(stratagems) {
+      const container = document.getElementById("results");
+      container.innerHTML = "";
+
+      stratagems.forEach(({ category, stratagem }, i) => {
+        const div = document.createElement("div");
+        div.className = "bg-gray-800 p-4 rounded-lg shadow-lg";
+        div.innerHTML = `
+          <h2 class="text-xl font-bold text-yellow-300 mb-1">${i + 1}. ${stratagem}</h2>
+          <p class="text-sm text-gray-300">${category}</p>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Pick on load
+    pickStratagems();
+  </script>
+</body>
+</html>
