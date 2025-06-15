@@ -27,9 +27,20 @@
     padding: 1rem;
     width: 220px;
     text-align: center;
+    box-shadow: 0 0 12px #00ff99aa;
+    transition: transform 0.2s ease;
+  }
+
+  /* .stratagem, .stratagem .card-back {
+    background: #222;
+    border-radius: 8px;
+    padding: 1rem;
+    width: 220px;
+    text-align: center;
     box-shadow: 0 0 8px #00ff99aa;
     transition: transform 0.2s ease;
   }
+   */
   .rare, .rare .card-back {
     background: #222;
     border-radius: 8px;
@@ -45,6 +56,31 @@
       0 0 32px 14px #8b00ff;  /* violet */
     transition: transform 0.2s ease;
   }
+
+  .rare .card-front {
+    box-shadow:
+      0 0 4px 1px #ff0000,    /* red */
+      0 0 6px 2px #ff7f00,   /* orange */
+      0 0 8px 3px #ffff00,   /* yellow */
+      0 0 10px 4px #00ff00,   /* green */
+      0 0 12px 5px #0000ff,  /* blue */
+      0 0 14px 6px #4b0082,  /* indigo */
+      0 0 16px 7px #8b00ff;  /* violet */
+  }
+
+  .weak, .weak .card-back {
+    background: #222;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 0 8px gray;
+    transition: transform 0.2s ease;
+  }
+
+  .weak .card-front {
+    box-shadow: 0 0 8px gray;
+  }
+
   .stratagem:hover {
     transform: scale(1.05);
   }
@@ -249,26 +285,45 @@ function pickRandomStratagems(arr, count) {
   return result;
 }
 
+const rareStratagems = [
+  "Orbital Napalm Barrage",
+  "Orbital 380mm HE Barrage",
+  "Recoilless Rifle",
+  "Rocket Sentry",
+  "Autocannon Sentry",
+  "Shield Generator Pack",
+  "Eagle 500kg Bomb",
+  "Eagle Smoke Strike",
+  "Orbital Smoke Strike"
+];
+
+const weakStratagems = [
+  // "StA-X3 W.A.S.P. Launcher",
+  // "Directional Shield",
+  // "Orbital Smoke Strike",
+  // "Fast Recon Vehicle",
+  // "Orbital EMS Strike",
+  // "Guard Dog Breath",
+  // "Eagle Smoke Strike",
+  // "Ballistic Shield Backpack",
+  // "Flame Sentry"
+];
+
 function displayStratagems() {
   const container = document.getElementById("stratagems");
   container.innerHTML = "";
 
   const chosen = pickRandomStratagems(stratagems, 4);
-  const rareStratagems = [
-    "Orbital Napalm Barrage",
-    "Orbital 380mm HE Barrage",
-    "Recoilless Rifle",
-    "Rocket Sentry",
-    "Autocannon Sentry",
-    "Shield Generator Pack"
-  ];
 
   chosen.forEach(s => {
     const div = document.createElement("div");
   
-    div.className = rareStratagems.includes(s.name) 
-      ? "stratagem rare card"
-      : "stratagem card";
+    if (rareStratagems.includes(s.name))
+      div.className = "stratagem rare card"
+    else if (weakStratagems.includes(s.name))
+      div.className = "stratagem weak card"
+    else 
+      div.className = "stratagem card"
 
     div.innerHTML = `
       <div class="card-inner">
