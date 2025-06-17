@@ -209,7 +209,7 @@ const stratagems = [
   { name: "Arc Thrower", category: "Supply", icon: "https://helldivers.wiki.gg/images/1/10/Arc_Thrower_Stratagem_Icon.png" },
   { name: "Autocannon Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/a/a7/Autocannon_Sentry_Stratagem_Icon.png" },
   { name: "Autocannon", category: "Supply", icon: "https://helldivers.wiki.gg/images/e/ef/Autocannon_Stratagem_Icon.png" },
-  { name: "Ballistic Shield Backpack", category: "Supply", icon: "https://helldivers.wiki.gg/images/3/37/Ballistic_Shield_Backpack_Stratagem_Icon.png" },
+  { name: "Ballistic Shield Backpack", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/3/37/Ballistic_Shield_Backpack_Stratagem_Icon.png" },
   { name: "Commando", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/78/Commando_Stratagem_Icon.png" },
   { name: "De-Escalator", category: "Supply", icon: "https://helldivers.wiki.gg/images/8/87/GL-52_De-Escalator_Stratagem_Icon.png" },
   { name: "Anti‑Tank Emplacement", category: "Defensive", icon: "https://helldivers.wiki.gg/images/6/62/E_AT-12_Anti-Tank_Emplacement_Stratagem_Icon.png" },
@@ -233,9 +233,9 @@ const stratagems = [
   { name: "Guard Dog", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/73/Guard_Dog_Stratagem_Icon.png" },
   { name: "Heavy Machine Gun", category: "Supply", icon: "https://helldivers.wiki.gg/images/d/d9/Heavy_Machine_Gun_Stratagem_Icon.png" },
   { name: "HMG Emplacement", category: "Defensive", icon: "https://helldivers.wiki.gg/images/0/03/HMG_Emplacement_Stratagem_Icon.png" },
-  { name: "Hover Pack", category: "Supply", icon: "https://helldivers.wiki.gg/images/5/5d/Hover_Pack_Stratagem_Icon.png" },
+  { name: "Hover Pack", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/5/5d/Hover_Pack_Stratagem_Icon.png" },
   { name: "Incendiary Mines", category: "Defensive", icon: "https://helldivers.wiki.gg/images/4/40/Incendiary_Mines_Stratagem_Icon.png" },
-  { name: "Jump Pack", category: "Supply", icon: "https://helldivers.wiki.gg/images/f/f5/Jump_Pack_Stratagem_Icon.png" },
+  { name: "Jump Pack", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/f/f5/Jump_Pack_Stratagem_Icon.png" },
   { name: "Laser Cannon", category: "Supply", icon: "https://helldivers.wiki.gg/images/c/c3/Laser_Cannon_Stratagem_Icon.png" },
   { name: "Fast Recon Vehicle", category: "Supply", icon: "https://helldivers.wiki.gg/images/0/00/M-102_Fast_Recon_Vehicle_Stratagem_Icon.png" },
   { name: "Machine Gun Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/5/5a/Machine_Gun_Sentry_Stratagem_Icon.png" },
@@ -254,36 +254,22 @@ const stratagems = [
   { name: "Orbital Railcannon Strike", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/6/6f/Orbital_Railcannon_Strike_Stratagem_Icon.png" },
   { name: "Orbital Smoke Strike", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/b/bc/Orbital_Smoke_Strike_Stratagem_Icon.png" },
   { name: "Orbital Walking Barrage", category: "Offensive – Orbital", icon: "https://helldivers.wiki.gg/images/5/53/Orbital_Walking_Barrage_Stratagem_Icon.png" },
-  { name: "Portable Hellbomb", category: "Supply", icon: "https://helldivers.wiki.gg/images/a/aa/Portable_Hellbomb_Stratagem_Icon.png" },
+  { name: "Portable Hellbomb", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/a/aa/Portable_Hellbomb_Stratagem_Icon.png" },
   { name: "Quasar Cannon", category: "Supply", icon: "https://helldivers.wiki.gg/images/8/87/Quasar_Cannon_Stratagem_Icon.png" },
   { name: "Railgun", category: "Supply", icon: "https://helldivers.wiki.gg/images/3/35/Railgun_Stratagem_Icon.png" },
   { name: "Recoilless Rifle", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/70/Recoilless_Rifle_Stratagem_Icon.png" },
   { name: "Airburst Rocket Launcher", category: "Supply", icon: "https://helldivers.wiki.gg/images/a/ad/RL-77_Airburst_Rocket_Launcher_Stratagem_Icon.png" },
   { name: "Rocket Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/6/62/Rocket_Sentry_Stratagem_Icon.png" },
   { name: "Directional Shield", category: "Defensive", icon: "https://helldivers.wiki.gg/images/b/b7/SH-51_Directional_Shield_Stratagem_Icon.png" },
-  { name: "Shield Generator Pack", category: "Supply", icon: "https://helldivers.wiki.gg/images/9/99/Shield_Generator_Pack_Stratagem_Icon.png" },
+  { name: "Shield Generator Pack", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/9/99/Shield_Generator_Pack_Stratagem_Icon.png" },
   { name: "Shield Generator Relay", category: "Defensive", icon: "https://helldivers.wiki.gg/images/e/e4/Shield_Generator_Relay_Stratagem_Icon.png" },
   { name: "Spear", category: "Supply", icon: "https://helldivers.wiki.gg/images/5/54/Spear_Stratagem_Icon.png" },
   { name: "StA-X3 W.A.S.P. Launcher", category: "Supply", icon: "https://helldivers.wiki.gg/images/a/af/StA-X3_W.A.S.P._Launcher_Stratagem_Icon.png" },
   { name: "Stalwart", category: "Supply", icon: "https://helldivers.wiki.gg/images/4/46/Stalwart_Stratagem_Icon.png" },
-  { name: "Supply Pack", category: "Supply", icon: "https://helldivers.wiki.gg/images/6/61/Supply_Pack_Stratagem_Icon.png" },
+  { name: "Supply Pack", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/6/61/Supply_Pack_Stratagem_Icon.png" },
   { name: "Sterilizer", category: "Supply", icon: "https://helldivers.wiki.gg/images/2/29/Sterilizer_Stratagem_Icon.png" },
   { name: "Tesla Tower", category: "Defensive", icon: "https://helldivers.wiki.gg/images/8/8f/Tesla_Tower_Stratagem_Icon.png" }
 ];
-
-// Pick 4 unique random stratagems
-function pickRandomStratagems(arr, count) {
-  const result = [];
-  const usedIndices = new Set();
-  while (result.length < count && result.length < arr.length) {
-    const i = Math.floor(Math.random() * arr.length);
-    if (!usedIndices.has(i)) {
-      usedIndices.add(i);
-      result.push(arr[i]);
-    }
-  }
-  return result;
-}
 
 const rareStratagems = [
   "Orbital Napalm Barrage",
@@ -298,16 +284,35 @@ const rareStratagems = [
 ];
 
 const weakStratagems = [
-  // "StA-X3 W.A.S.P. Launcher",
-  // "Directional Shield",
-  // "Orbital Smoke Strike",
-  // "Fast Recon Vehicle",
-  // "Orbital EMS Strike",
-  // "Guard Dog Breath",
-  // "Eagle Smoke Strike",
-  // "Ballistic Shield Backpack",
-  // "Flame Sentry"
+  "StA-X3 W.A.S.P. Launcher",
+  "Directional Shield",
+  "Orbital Smoke Strike",
+  "Fast Recon Vehicle",
+  "Orbital EMS Strike",
+  "Guard Dog Breath",
+  "Ballistic Shield Backpack",
+  "Flame Sentry",
+  "Shield Generator Relay"
 ];
+
+// Pick 4 unique random stratagems
+function pickRandomStratagems(arr, count) {
+  const result = [];
+  const usedIndices = new Set();
+  while (result.length < count && result.length < arr.length) {
+    const i = Math.floor(Math.random() * arr.length);
+    if (!usedIndices.has(i)) {
+      usedIndices.add(i);
+      result.push(arr[i]);
+    }
+  }
+
+  if (result.filter(_s => s.isBackpack).length > 1) {
+    return pickRandomStratagems(arr, count)
+  }
+
+  return result;
+}
 
 function displayStratagems() {
   const container = document.getElementById("stratagems");
