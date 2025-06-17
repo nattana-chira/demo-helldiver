@@ -220,24 +220,24 @@ const stratagems = [
   { name: "Eagle Napalm Airstrike", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/4/42/Eagle_Napalm_Airstrike_Stratagem_Icon.png" },
   { name: "Eagle Smoke Strike", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/0/05/Eagle_Smoke_Strike_Stratagem_Icon.png" },
   { name: "Eagle Strafing Run", category: "Offensive – Eagle", icon: "https://helldivers.wiki.gg/images/f/f3/Eagle_Strafing_Run_Stratagem_Icon.png" },
-  { name: "EXO-45 Patriot Exosuit", category: "Supply", icon: "https://helldivers.wiki.gg/images/3/30/EXO-45_Patriot_Exosuit_Stratagem_Icon.png" },
-  { name: "EXO-49 Emancipator Exosuit", category: "Supply", icon: "https://helldivers.wiki.gg/images/8/82/EXO-49_Emancipator_Exosuit_Stratagem_Icon.png" },
+  { name: "EXO-45 Patriot Exosuit", isVehicle: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/3/30/EXO-45_Patriot_Exosuit_Stratagem_Icon.png" },
+  { name: "EXO-49 Emancipator Exosuit", isVehicle: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/8/82/EXO-49_Emancipator_Exosuit_Stratagem_Icon.png" },
   { name: "Expendable Anti-Tank", category: "Supply", icon: "https://helldivers.wiki.gg/images/1/1c/Expendable_Anti-Tank_Stratagem_Icon.png" },
   { name: "Flamethrower", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/75/Flamethrower_Stratagem_Icon.png" },
   { name: "Gas Mines", category: "Defensive", icon: "https://helldivers.wiki.gg/images/1/13/Gas_Minefield_Stratagem_Icon.png" },
   { name: "Grenadier Battlement", category: "Defensive", icon: "https://helldivers.wiki.gg/images/3/3f/GL-21_Grenadier_Battlement_Stratagem_Icon.png" },
   { name: "Gatling Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/2/28/Gatling_Sentry_Stratagem_Icon.png" },
   { name: "Grenade Launcher", category: "Supply", icon: "https://helldivers.wiki.gg/images/c/cf/Grenade_Launcher_Stratagem_Icon.png" },
-  { name: "Guard Dog Breath", category: "Supply", icon: "https://helldivers.wiki.gg/images/2/20/Guard_Dog_Dog_Breath_Stratagem_Icon.png" },
-  { name: "Guard Dog Rover", category: "Supply", icon: "https://helldivers.wiki.gg/images/6/6f/Guard_Dog_Rover_Stratagem_Icon.png" },
-  { name: "Guard Dog", category: "Supply", icon: "https://helldivers.wiki.gg/images/7/73/Guard_Dog_Stratagem_Icon.png" },
+  { name: "Guard Dog Breath", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/2/20/Guard_Dog_Dog_Breath_Stratagem_Icon.png" },
+  { name: "Guard Dog Rover", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/6/6f/Guard_Dog_Rover_Stratagem_Icon.png" },
+  { name: "Guard Dog", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/7/73/Guard_Dog_Stratagem_Icon.png" },
   { name: "Heavy Machine Gun", category: "Supply", icon: "https://helldivers.wiki.gg/images/d/d9/Heavy_Machine_Gun_Stratagem_Icon.png" },
   { name: "HMG Emplacement", category: "Defensive", icon: "https://helldivers.wiki.gg/images/0/03/HMG_Emplacement_Stratagem_Icon.png" },
   { name: "Hover Pack", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/5/5d/Hover_Pack_Stratagem_Icon.png" },
   { name: "Incendiary Mines", category: "Defensive", icon: "https://helldivers.wiki.gg/images/4/40/Incendiary_Mines_Stratagem_Icon.png" },
   { name: "Jump Pack", isBackpack: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/f/f5/Jump_Pack_Stratagem_Icon.png" },
   { name: "Laser Cannon", category: "Supply", icon: "https://helldivers.wiki.gg/images/c/c3/Laser_Cannon_Stratagem_Icon.png" },
-  { name: "Fast Recon Vehicle", category: "Supply", icon: "https://helldivers.wiki.gg/images/0/00/M-102_Fast_Recon_Vehicle_Stratagem_Icon.png" },
+  { name: "Fast Recon Vehicle", isVehicle: true, category: "Supply", icon: "https://helldivers.wiki.gg/images/0/00/M-102_Fast_Recon_Vehicle_Stratagem_Icon.png" },
   { name: "Machine Gun Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/5/5a/Machine_Gun_Sentry_Stratagem_Icon.png" },
   { name: "Machine Gun", category: "Supply", icon: "https://helldivers.wiki.gg/images/e/e0/Machine_Gun_Stratagem_Icon.png" },
   { name: "Anti‑Tank Mines", category: "Defensive", icon: "https://helldivers.wiki.gg/images/b/ba/MD-17_Anti-Tank_Mines_Stratagem_Icon.png" },
@@ -307,7 +307,11 @@ function pickRandomStratagems(arr, count) {
     }
   }
 
-  if (result.filter(_s => s.isBackpack).length > 1) {
+  if (result.filter(_s => _s.isBackpack).length > 1) {
+    return pickRandomStratagems(arr, count)
+  }
+
+  if (result.filter(_s => !_s.isBackpack && !_s.isVehicle).length > 1) {
     return pickRandomStratagems(arr, count)
   }
 
