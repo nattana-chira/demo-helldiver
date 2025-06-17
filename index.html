@@ -313,13 +313,11 @@ function pickRandomStratagems(arr, count) {
     }
   }
 
-  // Prevent backpack more than 1
-  if (result.filter(_s => _s.isBackpack).length > 1) {
-    return pickRandomStratagems(arr, count)
-  }
+  const backpackCount = result.filter(_s => _s.isBackpack).length
+  const supplyWeaponCount = result.filter(_s => _s.category === "Supply" && !_s.isBackpack && !_s.isVehicle).length
 
-  // Prevent supply weapon more than 1
-  if (result.filter(_s => _s.category === "Supply" && !_s.isBackpack && !_s.isVehicle).length > 1) {
+  // Prevent backpack + supply weapon more than 2
+  if (backpackCount + supplyWeaponCount > 2) {
     return pickRandomStratagems(arr, count)
   }
 
