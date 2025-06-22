@@ -100,7 +100,7 @@
     color: #66ffcc;
   }
 
-  #randomBtn {
+  #randomBtn, #randomBtn2 {
     background: linear-gradient(to right, #ff0080, #7928ca);
     color: white;
     border: none;
@@ -115,6 +115,10 @@
     box-shadow: 0 0 12px #ff00ff99;
   }
 
+  #randomBtn2 {
+    margin-top: 10px;
+  }
+
   #randomBtn:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px #ff00ffcc;
@@ -127,6 +131,8 @@
   flex-wrap: wrap;
   justify-content: center;
   margin-top: 1rem;
+  max-width: 1100px;
+  margin: auto;
 }
 
 .card {
@@ -134,6 +140,9 @@
   height: 165px;
   perspective: 1000px;
   cursor: pointer;
+  opacity: 1;
+  transform: translateY(20px);
+  transition: all 0.4s ease;
 }
 
 .card-inner {
@@ -192,13 +201,22 @@
   font-size: 0.9rem;
   color: #aaa;
 }
+
+.disabled {
+  z-index: -1;
+}
+
+.disabled .card-back {
+  opacity: 0.3
+}
 </style>
 </head>
 <body>
 
 <h1>Random Helldivers Stratagems</h1>
 <div id="stratagems" class="card-grid"></div>
-<button id="randomBtn">🎲 Random</button>
+<button id="randomBtn">🎲 Random 4</button>
+<button id="randomBtn2">🎲 Random 8 + Hide Rarity</button>
 
 <script>
 const stratagems = [
@@ -301,6 +319,9 @@ const weakStratagems = [
   "Airburst Rocket Launcher"
 ];
 
+var selectedCount = 0
+var allCardDivs = []
+
 // Pick 4 unique random stratagems
 function pickRandomStratagems(arr, count) {
   const result = [];
@@ -317,23 +338,28 @@ function pickRandomStratagems(arr, count) {
   const supplyWeaponCount = result.filter(_s => _s.category === "Supply" && !_s.isBackpack && !_s.isVehicle).length
 
   // Prevent backpack + supply weapon more than 2
-  if (backpackCount + supplyWeaponCount > 2) {
+  if ((count <= 4) && backpackCount + supplyWeaponCount > 2) {
     return pickRandomStratagems(arr, count)
   }
 
   return result;
 }
 
-function displayStratagems() {
+function displayStratagems(count = 4, hideRarity = false) {
   const container = document.getElementById("stratagems");
   container.innerHTML = "";
+  selectedCount = 0
+  allCardDivs = []
 
-  const chosen = pickRandomStratagems(stratagems, 4);
+  const chosen = pickRandomStratagems(stratagems, count);
 
   chosen.forEach(s => {
-    const div = document.createElement("div");
+    let div = document.createElement("div");
+    allCardDivs.push(div)
   
-    if (rareStratagems.includes(s.name))
+    if (hideRarity) 
+      div.className = "stratagem weak card"
+    else if (rareStratagems.includes(s.name))
       div.className = "stratagem rare card"
     else if (weakStratagems.includes(s.name))
       div.className = "stratagem weak card"
@@ -353,14 +379,37 @@ function displayStratagems() {
 
     // Flip on click
     div.addEventListener("click", () => {
-      div.classList.toggle("flipped");
+      if (div.classList.contains("flipped"))
+        return false
+
+      div.classList.add("flipped");
+      selectedCount++
+
+      div.classList.remove("weak")
+
+      if (rareStratagems.includes(s.name))
+        div.classList.add("rare")
+      else if (weakStratagems.includes(s.name))
+        div.classList.add("weak")
+
+      if (selectedCount === 4 && hideRarity) {
+        allCardDivs.forEach(_div => {
+          if (!_div.classList.contains("flipped")) {
+            _div.classList.add("flipped")
+            _div.classList.add("disabled")
+            _div.classList.add("weak")
+          }
+        })
+      }
     });
 
     container.appendChild(div);
   });
 }
 
-document.getElementById("randomBtn").addEventListener("click", displayStratagems);
+document.getElementById("randomBtn").addEventListener("click", () => displayStratagems());
+document.getElementById("randomBtn2").addEventListener("click", () => displayStratagems(8, true));
+
 window.onload = displayStratagems;
 </script>
 
