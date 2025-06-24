@@ -340,7 +340,7 @@ function pickRandomStratagems(arr, count) {
   const supplyWeaponCount = result.filter(_s => _s.category === "Supply" && !_s.isBackpack && !_s.isVehicle).length
 
   // Prevent backpack + supply weapon more than 2
-  if ((count <= 4) && backpackCount + supplyWeaponCount > 2) {
+  if (backpackCount + supplyWeaponCount > count/2) {
     return pickRandomStratagems(arr, count)
   }
 
