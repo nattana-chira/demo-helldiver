@@ -211,6 +211,10 @@
 .disabled .card-back, .disabled .card-front {
 
 }
+
+.free-rarity-scan {
+ text-align: center;
+}
 </style>
 </head>
 <body>
@@ -219,6 +223,11 @@
 <div id="stratagems" class="card-grid"></div>
 <button id="randomBtn">🎲 Random 4</button>
 <button id="randomBtn2">🎲 Random 8 + Hide Rarity</button>
+<div class="free-rarity-scan">
+  Free Rarity Scan: 
+  <span id="scan-count">1</span>
+</div>
+
 
 <script>
 const stratagems = [
@@ -323,6 +332,8 @@ const weakStratagems = [
 
 var selectedCount = 0
 var allCardDivs = []
+var scanCount = 1
+var scanCountEl = document.getElementById("scan-count")
 
 // Pick 4 unique random stratagems
 function pickRandomStratagems(arr, count) {
@@ -356,6 +367,8 @@ function displayStratagems(count = 4, hideRarity = false) {
   container.innerHTML = "";
   selectedCount = 0
   allCardDivs = []
+  scanCount = count > 4 ? 1 : 0
+  scanCountEl.innerHTML = scanCount
 
   const chosen = pickRandomStratagems(stratagems, count);
 
@@ -385,6 +398,22 @@ function displayStratagems(count = 4, hideRarity = false) {
 
     // Flip on click
     div.addEventListener("click", () => {
+      scanCount--
+
+      if (scanCount >= 0) {
+        scanCountEl.innerHTML = scanCount
+
+        div.classList.remove("weak")
+        if (rareStratagems.includes(s.name))
+          div.classList.add("rare")
+        else if (weakStratagems.includes(s.name))
+          div.classList.add("weak")
+      }
+
+      if (scanCount >= 0) {
+        return false
+      }
+
       if (div.classList.contains("flipped"))
         return false
 
@@ -392,7 +421,6 @@ function displayStratagems(count = 4, hideRarity = false) {
       selectedCount++
 
       div.classList.remove("weak")
-
       if (rareStratagems.includes(s.name))
         div.classList.add("rare")
       else if (weakStratagems.includes(s.name))
