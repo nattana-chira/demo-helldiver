@@ -100,7 +100,7 @@
     color: #66ffcc;
   }
 
-  #randomBtn, #randomBtn2 {
+  #randomBtn, #randomBtn2, #randomBtn3 {
     background: linear-gradient(to right, #ff0080, #7928ca);
     color: white;
     border: none;
@@ -227,6 +227,8 @@
   Free Rarity Scan: 
   <span id="scan-count">1</span>
 </div>
+<div id="boosters" class="card-grid"></div>
+<button id="randomBtn3">🎲 Random Boosters</button>
 
 
 <script>
@@ -333,6 +335,26 @@ const weakStratagems = [
   "Airburst Rocket Launcher"
 ];
 
+const boosters = [
+  { name: "Hellpod Space Optimization", icon: "https://helldivers.wiki.gg/images/Hellpod_Space_Optimization_Booster_Icon.svg?aa4762" },
+  { name: "Vitality Enhancement", icon: "https://helldivers.wiki.gg/images/Vitality_Enhancement_Booster_Icon.svg?873a4b" },
+  { name: "UAV Recon Booster", icon: "https://helldivers.wiki.gg/images/UAV_Recon_Booster_Booster_Icon.svg?3e5a87" },
+  { name: "Stamina Enhancement", icon: "https://helldivers.wiki.gg/images/Stamina_Enhancement_Booster_Icon.svg?d76555" },
+  { name: "Muscle Enhancement", icon: "https://helldivers.wiki.gg/images/Muscle_Enhancement_Booster_Icon.svg?f1d14b" },
+  { name: "Increased Reinforcement Budget", icon: "https://helldivers.wiki.gg/images/Increased_Reinforcement_Budget_Booster_Icon.svg?7f04a9" },
+  { name: "Flexible Reinforcement Budget", icon: "https://helldivers.wiki.gg/images/Flexible_Reinforcement_Budget_Booster_Icon.svg?1d940b" },
+  { name: "Localization Confusion", icon: "https://helldivers.wiki.gg/images/Localization_Confusion_Booster_Icon.svg?95b1f1" },
+  { name: "Expert Extraction Pilot", icon: "https://helldivers.wiki.gg/images/Expert_Extraction_Pilot_Booster_Icon.svg?e0a588" },
+  { name: "Motivational Shocks", icon: "https://helldivers.wiki.gg/images/Motivational_Shocks_Booster_Icon.svg?b83499" },
+  { name: "Experimental Infusion", icon: "https://helldivers.wiki.gg/images/Experimental_Infusion_Booster_Icon.svg?3bb23a" },
+  { name: "Firebomb Hellpods", icon: "https://helldivers.wiki.gg/images/Firebomb_Hellpods_Booster_Icon.svg?b0cb2a" },
+  { name: "Dead Sprint", icon: "https://helldivers.wiki.gg/images/Dead_Sprint_Booster_Icon.svg?ad8a2b" },
+  { name: "Armed Resupply Pods", icon: "https://helldivers.wiki.gg/images/Armed_Resupply_Pods_Booster_Icon.svg?60e831" },
+  { name: "Sample Extricator", icon: "https://helldivers.wiki.gg/images/Sample_Extricator_Booster_Icon.svg?13722c" },
+  { name: "Sample Scanner", icon: "https://helldivers.wiki.gg/images/b/bb/Sample_Scanner_Booster_Icon.svg?894450" },
+  { name: "Stun Pods", icon: "https://helldivers.wiki.gg/images/Stun_Pods_Booster_Icon.png?4d3461" }
+]
+
 var selectedCount = 0
 var allCardDivs = []
 var scanCount = 1
@@ -360,6 +382,20 @@ function pickRandomStratagems(arr, count) {
 
   if ((count > 4) && (backpackCount > 2 || supplyWeaponCount > 2)) {
     return pickRandomStratagems(arr, count)
+  }
+
+  return result;
+}
+
+function randomBoosters(arr, count) {
+  const result = [];
+  const usedIndices = new Set();
+  while (result.length < count && result.length < arr.length) {
+    const i = Math.floor(Math.random() * arr.length);
+    if (!usedIndices.has(i)) {
+      usedIndices.add(i);
+      result.push(arr[i]);
+    }
   }
 
   return result;
@@ -444,8 +480,44 @@ function displayStratagems(count = 4, hideRarity = false) {
   });
 }
 
+function displayBoosters() {
+  const container = document.getElementById("boosters");
+  container.innerHTML = "";
+  allCardDivs = []
+
+  const chosen = randomBoosters(boosters, 4);
+
+  chosen.forEach(s => {
+    let div = document.createElement("div");
+    allCardDivs.push(div)
+
+    div.className = "stratagem card"
+    div.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front">Click to Reveal</div>
+        <div class="card-back">
+          <img src="${s.icon}" alt="${s.name} Icon" />
+          <div class="name">${s.name}</div>
+          <div class="category">${s.name}</div>
+        </div>
+      </div>
+    `;
+
+    // Flip on click
+    div.addEventListener("click", () => {
+      if (div.classList.contains("flipped"))
+        return false
+
+      div.classList.add("flipped");
+    });
+
+    container.appendChild(div);
+  });
+}
+
 document.getElementById("randomBtn").addEventListener("click", () => displayStratagems());
 document.getElementById("randomBtn2").addEventListener("click", () => displayStratagems(8, true));
+document.getElementById("randomBtn3").addEventListener("click", () => displayBoosters());
 
 window.onload = displayStratagems;
 </script>
