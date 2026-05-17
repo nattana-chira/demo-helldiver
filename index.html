@@ -324,7 +324,6 @@
 .draft-card .card-front.type-support   { background: #10102a; box-shadow: 0 0 14px #4488ffbb; color: #88aaff; }
 .draft-card .card-front.type-backpack  { background: #102a10; box-shadow: 0 0 14px #44cc44bb; color: #88ee88; }
 .draft-card .card-front.type-defensive { background: #1a1a00; box-shadow: 0 0 14px #cccc00bb; color: #eeee44; }
-.draft-card .card-front.type-vehicle   { background: #10102a; box-shadow: 0 0 14px #4488ffbb; color: #88aaff; }
 .draft-card .card-front.type-strike    { background: #2a1010; box-shadow: 0 0 14px #ff4444bb; color: #ff8888; }
 </style>
 </head>
@@ -340,7 +339,7 @@
 </div>
 <div id="boosters" class="card-grid"></div>
 <button id="randomBtn3">🎲 Random Boosters</button>
-<button id="randomBtnDraft">⚔️ Draft Mode (Pick 1 of 4)</button>
+<button id="randomBtnDraft">⚔️ Draft Mode (Pick 1 of 3)</button>
 <div id="draft-section" class="draft-section"></div>
 
 <script>
@@ -653,8 +652,7 @@ function displayBoosters() {
 }
 
 function getCardType(s) {
-  if (s.isVehicle)                                                                  return { label: "Exosuit",             emoji: "🤖", cls: "type-vehicle"   };
-  if (s.isBackpack)                                                                 return { label: "Backpack",             emoji: "🎒", cls: "type-backpack"  };
+  if (s.isVehicle || s.isBackpack)                                                  return { label: "Backpack / Exosuit",   emoji: "🎒", cls: "type-backpack"  };
   if (s.category === "Offensive – Eagle" || s.category === "Offensive – Orbital")  return { label: "Strike",               emoji: "☄️", cls: "type-strike"   };
   if (s.category === "Defensive")                                                   return { label: "Sentry / Emplacement", emoji: "🗼", cls: "type-defensive" };
   return                                                                                   { label: "Support Weapon",       emoji: "🔫", cls: "type-support"  };
@@ -672,7 +670,7 @@ function pickDraftLoadout(arr) {
   }
   const backpackCount = result.filter(s => s.isBackpack).length;
   const supportCount  = result.filter(s => s.category === "Supply" && !s.isBackpack && !s.isVehicle).length;
-  if (backpackCount > 1 || supportCount > 1) return pickDraftLoadout(arr);
+  if (backpackCount > 1 || supportCount > 2) return pickDraftLoadout(arr);
   return result;
 }
 
@@ -681,7 +679,7 @@ function displayDraftMode() {
   section.innerHTML = "";
   let picked = false;
 
-  for (let li = 0; li < 4; li++) {
+  for (let li = 0; li < 3; li++) {
     const loadout = pickDraftLoadout(stratagems);
 
     const loadoutDiv = document.createElement("div");
