@@ -112,8 +112,10 @@ function pickDraftLoadout(arr) {
     const i = Math.floor(Math.random() * arr.length);
     if (usedIndices.has(i)) continue;
     const s = arr[i];
+    const isStrike  = s.category === "Offensive – Eagle" || s.category === "Offensive – Orbital";
     const isSupport = s.category === "Supply" && !s.isBackpack && !s.isVehicle;
     if (isSupport && Math.random() < 0.2) continue; // 20% chance to skip support weapons
+    if (!isStrike  && Math.random() < 0.2) continue; // boost strikes: 20% skip for non-strikes
     usedIndices.add(i);
     result.push(s);
   }
