@@ -61,7 +61,11 @@ async function registerCommands() {
       .toJSON(),
   ];
   const rest = new REST().setToken(TOKEN);
-  await rest.put(Routes.applicationCommands(CLIENT_ID), { body: commands });
+  const GUILD_ID = process.env.DISCORD_GUILD_ID;
+  const route = GUILD_ID
+    ? Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID)  // instant
+    : Routes.applicationCommands(CLIENT_ID);                 // up to 1hr
+  await rest.put(route, { body: commands });
   console.log('✅ Slash commands registered.');
 }
 
