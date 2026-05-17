@@ -1,12 +1,16 @@
 {
   "name": "helldiver",
   "version": "1.0.0",
-  "main": "server.js",
+  "description": "Helldivers 2 stratagem randomizer — web app + Discord bot",
+  "main": "bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "sharp": "^0.33.4"
+  },
+  "license": "ISC"
 }

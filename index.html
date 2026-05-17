@@ -322,9 +322,28 @@
 
 /* Type-coloured fronts */
 .draft-card .card-front.type-support   { background: #10102a; box-shadow: 0 0 14px #4488ffbb; color: #88aaff; }
-.draft-card .card-front.type-backpack  { background: #102a10; box-shadow: 0 0 14px #44cc44bb; color: #88ee88; }
-.draft-card .card-front.type-defensive { background: #1a1a00; box-shadow: 0 0 14px #cccc00bb; color: #eeee44; }
+.draft-card .card-front.type-backpack  { background: #0a1a2a; box-shadow: 0 0 14px #00aaffbb; color: #44ccff; }
+.draft-card .card-front.type-defensive { background: #0a2a0a; box-shadow: 0 0 14px #44cc44bb; color: #88ee88; }
 .draft-card .card-front.type-strike    { background: #2a1010; box-shadow: 0 0 14px #ff4444bb; color: #ff8888; }
+
+.draft-card.rerollable:hover .card-back {
+  box-shadow: 0 0 28px 8px #ffaa00cc;
+  cursor: pointer;
+}
+.draft-card.rerollable .card-back::after {
+  content: "🔄 re-roll";
+  position: absolute;
+  bottom: 4px;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 0.62rem;
+  color: #ffaa00cc;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.draft-card.rerollable:hover .card-back::after {
+  opacity: 1;
+}
 </style>
 </head>
 <body>
@@ -663,10 +682,12 @@ function pickDraftLoadout(arr) {
   const usedIndices = new Set();
   while (result.length < 4 && result.length < arr.length) {
     const i = Math.floor(Math.random() * arr.length);
-    if (!usedIndices.has(i)) {
-      usedIndices.add(i);
-      result.push(arr[i]);
-    }
+    if (usedIndices.has(i)) continue;
+    const s = arr[i];
+    const isSupport = s.category === "Supply" && !s.isBackpack && !s.isVehicle;
+    if (isSupport && Math.random() < 0.2) continue; // 20% chance to skip support weapons
+    usedIndices.add(i);
+    result.push(s);
   }
   const backpackCount = result.filter(s => s.isBackpack).length;
   const supportCount  = result.filter(s => s.category === "Supply" && !s.isBackpack && !s.isVehicle).length;
@@ -674,12 +695,35 @@ function pickDraftLoadout(arr) {
   return result;
 }
 
+function getSameTypePool(s) {
+  const cls = getCardType(s).cls;
+  return stratagems.filter(x => getCardType(x).cls === cls);
+}
+
+function buildDraftCardHTML(s) {
+  const type = getCardType(s);
+  return `
+    <div class="card-inner">
+      <div class="card-front ${type.cls}">
+        <div class="draft-type-emoji">${type.emoji}</div>
+        <div class="draft-type-label">${type.label}</div>
+      </div>
+      <div class="card-back">
+        <img src="${s.icon}" alt="${s.name}" />
+        <div class="name">${s.name}</div>
+        <div class="category">${s.category}</div>
+      </div>
+    </div>
+  `;
+}
+
 function displayDraftMode() {
   const section = document.getElementById("draft-section");
   section.innerHTML = "";
   let picked = false;
 
-  for (let li = 0; li < 3; li++) {
+  // Build all loadouts first so click handlers can reference each other
+  const all = Array.from({ length: 3 }, (_, li) => {
     const loadout = pickDraftLoadout(stratagems);
 
     const loadoutDiv = document.createElement("div");
@@ -695,40 +739,64 @@ function displayDraftMode() {
 
     const cardDivs = [];
     loadout.forEach(s => {
-      const type = getCardType(s);
       const cardDiv = document.createElement("div");
       cardDiv.className = "draft-card card";
-      cardDiv.innerHTML = `
-        <div class="card-inner">
-          <div class="card-front ${type.cls}">
-            <div class="draft-type-emoji">${type.emoji}</div>
-            <div class="draft-type-label">${type.label}</div>
-          </div>
-          <div class="card-back">
-            <img src="${s.icon}" alt="${s.name}" />
-            <div class="name">${s.name}</div>
-            <div class="category">${s.category}</div>
-          </div>
-        </div>
-      `;
+      cardDiv.innerHTML = buildDraftCardHTML(s);
       cardDivs.push(cardDiv);
       cardsDiv.appendChild(cardDiv);
     });
 
     loadoutDiv.appendChild(cardsDiv);
+    section.appendChild(loadoutDiv);
+    return { loadoutDiv, cardDivs, loadout };
+  });
 
+  // Wire up click handlers now that all loadouts exist
+  all.forEach(({ loadoutDiv, cardDivs, loadout }, li) => {
     loadoutDiv.addEventListener("click", () => {
       if (picked) return;
       picked = true;
+
+      // Reveal selected loadout
       cardDivs.forEach(c => c.classList.add("flipped"));
       loadoutDiv.classList.add("selected");
-      section.querySelectorAll(".draft-loadout").forEach(other => {
-        if (other !== loadoutDiv) other.classList.add("faded");
-      });
-    });
 
-    section.appendChild(loadoutDiv);
-  }
+      // Reveal AND fade the others
+      all.forEach((other, j) => {
+        if (j !== li) {
+          other.cardDivs.forEach(c => c.classList.add("flipped"));
+          other.loadoutDiv.classList.add("faded");
+        }
+      });
+
+      // After flip animation, enable per-card re-roll on the selected loadout
+      setTimeout(() => {
+        cardDivs.forEach((cardDiv, idx) => {
+          cardDiv.classList.add("rerollable");
+          cardDiv.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (cardDiv.dataset.animating === "true") return;
+
+            const pool = getSameTypePool(loadout[idx]).filter(x => !loadout.includes(x));
+            if (pool.length === 0) return;
+
+            const newS = pool[Math.floor(Math.random() * pool.length)];
+            loadout[idx] = newS;
+            cardDiv.dataset.animating = "true";
+            cardDiv.classList.remove("flipped");
+
+            setTimeout(() => {
+              cardDiv.innerHTML = buildDraftCardHTML(newS);
+              setTimeout(() => {
+                cardDiv.classList.add("flipped");
+                setTimeout(() => { cardDiv.dataset.animating = "false"; }, 650);
+              }, 50);
+            }, 650);
+          });
+        });
+      }, 700);
+    });
+  });
 }
 
 document.getElementById("randomBtn").addEventListener("click", () => displayStratagems());
