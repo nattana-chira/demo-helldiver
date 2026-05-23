@@ -361,6 +361,54 @@
   min-width: 0;
 }
 
+/* ── Callsign ── */
+#callsign-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0d0d0d;
+  border: 1px solid #66ffcc44;
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+#callsign-bar:hover { border-color: #66ffccaa; }
+.callsign-label {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+#callsign-display {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: #66ffcc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px dashed #66ffcc44;
+}
+.callsign-edit-hint {
+  font-size: 0.75rem;
+  opacity: 0.4;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+#callsign-bar:hover .callsign-edit-hint { opacity: 1; }
+#callsign-input {
+  display: none;
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #66ffcc;
+  color: #66ffcc;
+  font-size: 0.82rem;
+  font-weight: bold;
+  outline: none;
+  width: 100%;
+}
+
 /* ── Roll Log ── */
 #roll-log-section {
   width: 280px;
@@ -392,6 +440,7 @@
 }
 .log-entry:last-child { border-bottom: none; }
 .log-meta { margin-bottom: 0.35rem; }
+.log-callsign { color: #66ffcc; font-size: 0.72rem; font-weight: bold; margin-right: 0.3rem; }
 .log-time  { color: #444; font-size: 0.68rem; margin-right: 0.4rem; }
 .log-mode  { color: #ff00ff66; font-size: 0.68rem; }
 .log-icons { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -412,6 +461,63 @@
 #roll-log::-webkit-scrollbar-track { background: transparent; }
 #roll-log::-webkit-scrollbar-thumb { background: #00ffcc44; border-radius: 2px; }
 #roll-log::-webkit-scrollbar-thumb:hover { background: #00ffccaa; }
+
+/* ── Hot Right Now ── */
+#hot-now {
+  margin-top: 1rem;
+  flex-shrink: 0;
+}
+#hot-now h2 {
+  text-align: center;
+  color: #ff6600;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  margin: 0 0 0.5rem 0;
+}
+#hot-list {
+  background: #0d0d0d;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+}
+.hot-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+.hot-entry:last-child { border-bottom: none; }
+.hot-rank {
+  font-size: 0.75rem;
+  font-weight: bold;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.hot-rank-1 { color: #ffd700; }
+.hot-rank-2 { color: #aaaaaa; }
+.hot-rank-3 { color: #cd7f32; }
+.hot-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  background: #1a1a1a;
+  border-radius: 4px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.hot-name {
+  font-size: 0.72rem;
+  color: #ccc;
+  flex: 1;
+  line-height: 1.2;
+}
+.hot-count {
+  font-size: 0.7rem;
+  color: #ff6600aa;
+  flex-shrink: 0;
+}
 </style>
 </head>
 <body>
@@ -433,8 +539,18 @@
   </div>
 
   <div id="roll-log-section">
+    <div id="callsign-bar">
+      <span class="callsign-label">👤</span>
+      <span id="callsign-display"></span>
+      <span class="callsign-edit-hint">✏️</span>
+      <input id="callsign-input" type="text" maxlength="20" placeholder="Enter callsign" />
+    </div>
     <h2>⚡ RECENT DROPS</h2>
     <div id="roll-log"><div class="log-empty">Loading...</div></div>
+    <div id="hot-now">
+      <h2>🔥 HOT RIGHT NOW</h2>
+      <div id="hot-list"><div class="log-empty">Loading...</div></div>
+    </div>
   </div>
 </div>
 
@@ -456,6 +572,7 @@ function logRoll(items, mode) {
   db.ref("rolls").push({
     names: items.map(s => s.name),
     mode,
+    callsign: getCallsign(),
     ts: firebase.database.ServerValue.TIMESTAMP
   }).catch(err => console.error("Firebase write failed:", err.message));
 }
@@ -469,17 +586,99 @@ function timeAgo(ts) {
   return h < 24 ? `${h} hr ago` : `${Math.floor(h/24)}d ago`;
 }
 
+function getCallsign() {
+  return localStorage.getItem('callsign') || 'Helldiver';
+}
+
+function initCallsign() {
+  const display = document.getElementById('callsign-display');
+  const input = document.getElementById('callsign-input');
+  display.textContent = getCallsign();
+
+  document.getElementById('callsign-bar').addEventListener('click', () => {
+    display.style.display = 'none';
+    document.querySelector('.callsign-edit-hint').style.display = 'none';
+    input.style.display = 'inline';
+    input.value = getCallsign();
+    input.focus();
+    input.select();
+  });
+
+  function save() {
+    const val = input.value.trim() || 'Helldiver';
+    localStorage.setItem('callsign', val);
+    display.textContent = val;
+    input.style.display = 'none';
+    display.style.display = 'inline';
+    document.querySelector('.callsign-edit-hint').style.display = 'inline';
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+}
+
+function spinCard(frontEl, staggerDelay, onDone) {
+  const totalFrames = 12;
+  let frame = 0;
+  function step() {
+    if (frame >= totalFrames) {
+      frontEl.innerHTML = 'Click to Reveal';
+      onDone();
+      return;
+    }
+    const rand = stratagems[Math.floor(Math.random() * stratagems.length)];
+    frontEl.innerHTML = `<img src="${rand.icon}" style="width:55px;height:55px;object-fit:contain;opacity:0.65;filter:brightness(1.4)">`;
+    const delay = 40 + (frame / totalFrames) * 160;
+    frame++;
+    setTimeout(step, delay);
+  }
+  setTimeout(step, staggerDelay);
+}
+
+function renderHotNow(entries) {
+  const counts = {};
+  entries.forEach(e => {
+    if (!e || !e.names) return;
+    const names = Array.isArray(e.names) ? e.names : Object.values(e.names);
+    names.forEach(n => { counts[n] = (counts[n] || 0) + 1; });
+  });
+
+  const top3 = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
+  const hotEl = document.getElementById("hot-list");
+  if (top3.length === 0) {
+    hotEl.innerHTML = '<div class="log-empty">No data yet</div>';
+    return;
+  }
+  const medals = ["hot-rank-1", "hot-rank-2", "hot-rank-3"];
+  const nums = ["1", "2", "3"];
+  hotEl.innerHTML = top3.map(([name, count], i) => {
+    const icon = iconMap[name] || "";
+    return `<div class="hot-entry">
+      <span class="hot-rank ${medals[i]}">${nums[i]}</span>
+      <img src="${icon}" class="hot-icon" title="${name}" />
+      <span class="hot-name">${name}</span>
+      <span class="hot-count">×${count}</span>
+    </div>`;
+  }).join("");
+}
+
 function subscribeToLog() {
   const logEl = document.getElementById("roll-log");
   const timeout = setTimeout(() => {
-    if (logEl.innerHTML.includes("Loading"))
-      logEl.innerHTML = '<div class="log-empty" style="color:#ff4444">Cannot connect to database. Check Firebase Console — Realtime Database may not be created yet.</div>';
+    if (logEl.innerHTML.includes("Loading")) {
+      logEl.innerHTML = '<div class="log-empty" style="color:#ff4444">Cannot connect to database.</div>';
+      document.getElementById("hot-list").innerHTML = '<div class="log-empty" style="color:#ff4444">Cannot connect.</div>';
+    }
   }, 6000);
   db.ref("rolls").orderByChild("ts").limitToLast(30)
     .on("value", snap => {
       clearTimeout(timeout);
       const entries = [];
       snap.forEach(child => { entries.push(child.val()); });
+      renderHotNow(entries);
       entries.reverse();
       if (entries.length === 0) {
         logEl.innerHTML = '<div class="log-empty">No rolls yet — be the first!</div>';
@@ -494,8 +693,10 @@ function subscribeToLog() {
           const cls = 'log-icon';
           return `<img src="${icon}" class="${cls}" title="${n}" />`;
         }).join("");
+        const callsign = e.callsign || 'Helldiver';
         return `<div class="log-entry">
           <div class="log-meta">
+            <span class="log-callsign">${callsign}</span>
             <span class="log-time">${timeAgo(e.ts)}</span>
             <span class="log-mode">[${e.mode}]</span>
           </div>
@@ -732,7 +933,7 @@ function displayStratagems(count = 4, hideRarity = false) {
 
     div.innerHTML = `
       <div class="card-inner">
-        <div class="card-front">Click to Reveal</div>
+        <div class="card-front"></div>
         <div class="card-back">
           <img src="${s.icon}" alt="${s.name} Icon" />
           <div class="name">${s.name}</div>
@@ -741,8 +942,14 @@ function displayStratagems(count = 4, hideRarity = false) {
       </div>
     `;
 
+    div.classList.add("spinning");
+    const frontEl = div.querySelector(".card-front");
+    const idx = chosen.indexOf(s);
+    spinCard(frontEl, idx * 120, () => div.classList.remove("spinning"));
+
     // Flip on click
     div.addEventListener("click", () => {
+      if (div.classList.contains("spinning")) return;
       scanCount--
 
       if (scanCount >= 0) {
@@ -801,7 +1008,7 @@ function displayBoosters() {
     div.className = "stratagem card"
     div.innerHTML = `
       <div class="card-inner">
-        <div class="card-front">Click to Reveal</div>
+        <div class="card-front"></div>
         <div class="card-back">
           <img src="${s.icon}" alt="${s.name} Icon" />
           <div class="name">${s.name}</div>
@@ -810,8 +1017,14 @@ function displayBoosters() {
       </div>
     `;
 
+    div.classList.add("spinning");
+    const frontEl = div.querySelector(".card-front");
+    const idx = chosen.indexOf(s);
+    spinCard(frontEl, idx * 120, () => div.classList.remove("spinning"));
+
     // Flip on click
     div.addEventListener("click", () => {
+      if (div.classList.contains("spinning")) return;
       if (div.classList.contains("flipped"))
         return false
 
@@ -961,6 +1174,7 @@ document.getElementById("randomBtn3").addEventListener("click", () => displayBoo
 document.getElementById("randomBtnDraft").addEventListener("click", displayDraftMode);
 
 window.onload = () => {
+  initCallsign();
   subscribeToLog();
 };
 </script>

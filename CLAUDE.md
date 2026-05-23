@@ -153,6 +153,31 @@ Selecting a loadout also logs it to Firebase as `[Draft]`.
 
 ---
 
+## Callsign
+
+Stored in `localStorage` under key `callsign`. Defaults to `"Helldiver"`.
+
+- Displayed in the sidebar as `👤 <name> ✏️`
+- Entire bar is clickable — switches to an inline text input on click, saves on Enter/blur
+- Included in every Firebase roll entry as `callsign` field
+- Shown in each log entry in cyan before the timestamp
+
+### Functions
+- `getCallsign()` — reads from localStorage
+- `initCallsign()` — wires up the display/input toggle, called from `window.onload`
+
+---
+
+## Spin Animation
+
+When `displayStratagems` or `displayBoosters` renders cards, each card front starts blank and cycles through random stratagem icons rapidly (slot machine effect) before settling on "Click to Reveal".
+
+- `spinCard(frontEl, staggerDelay, onDone)` — animates one card front. Runs `totalFrames` steps with exponentially increasing delay (fast → slow)
+- Cards stagger by `120ms` per index so they stop one after another
+- Cards have class `spinning` during animation — click handlers return early if `spinning` is present, preventing premature flips
+
+---
+
 ## Firebase Activity Log
 
 **Project:** `wtk-game` (Firebase)
@@ -177,9 +202,17 @@ Pushes a roll to Firebase. Called by `displayStratagems`, `displayBoosters`, and
 
 `on("value")` listener on `/rolls` ordered by `ts`, last 30. Re-renders the full log on every change. Uses `snap.forEach(child => { entries.push(child.val()); })` — **note the curly braces are required**: without them, `push()` returns a truthy length and Firebase stops iterating after 1 entry.
 
+### `snap.forEach` gotcha
+
+Use `snap.forEach(child => { entries.push(child.val()); })` — **curly braces required**. Without them, the arrow function implicitly returns `push()`'s return value (a truthy number), which causes Firebase to stop iteration after 1 entry.
+
 ### Layout
 
-Two-column layout: main content on the left, log as a sticky right sidebar (`width: 280px`, `position: sticky`). Each log entry shows 32×32 icons with the stratagem name as `title` tooltip. All icons shown at full brightness regardless of rarity.
+Two-column layout: main content on the left, log as a sticky right sidebar (`width: 280px`, `position: sticky`). Each log entry shows the callsign in cyan, timestamp, mode tag, then a row of 32×32 icons (name shown on hover via `title`). All icons at full brightness.
+
+### 🔥 Hot Right Now
+
+Below the log, a `#hot-list` section shows the top 3 most-rolled stratagems from the last 30 entries. Computed in `renderHotNow(entries)` — called from the same `on("value")` callback before `entries.reverse()`. Shows gold/silver/bronze rank, icon, name, and roll count (`×N`).
 
 ---
 
