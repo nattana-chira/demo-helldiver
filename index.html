@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="referrer" content="no-referrer" />
 <title>Random Helldivers Stratagems</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -323,6 +325,7 @@
 /* Type-coloured fronts */
 .draft-card .card-front.type-support   { background: #10102a; box-shadow: 0 0 14px #4488ffbb; color: #88aaff; }
 .draft-card .card-front.type-backpack  { background: #0a1a2a; box-shadow: 0 0 14px #00aaffbb; color: #44ccff; }
+.draft-card .card-front.type-exosuit  { background: #1a1a0a; box-shadow: 0 0 14px #aaaa00bb; color: #dddd44; }
 .draft-card .card-front.type-defensive { background: #0a2a0a; box-shadow: 0 0 14px #44cc44bb; color: #88ee88; }
 .draft-card .card-front.type-strike    { background: #2a1010; box-shadow: 0 0 14px #ff4444bb; color: #ff8888; }
 
@@ -344,24 +347,174 @@
 .draft-card.rerollable:hover .card-back::after {
   opacity: 1;
 }
+
+/* ── Page Layout ── */
+#page-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+#main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Roll Log ── */
+#roll-log-section {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+}
+#roll-log-section h2 {
+  text-align: center;
+  color: #66ffcc;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  margin: 0 0 0.5rem 0;
+}
+#roll-log {
+  flex: 1;
+  overflow-y: auto;
+  background: #0d0d0d;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+}
+.log-entry {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-meta { margin-bottom: 0.35rem; }
+.log-time  { color: #444; font-size: 0.68rem; margin-right: 0.4rem; }
+.log-mode  { color: #ff00ff66; font-size: 0.68rem; }
+.log-icons { display: flex; flex-wrap: wrap; gap: 4px; }
+.log-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #1a1a1a;
+  padding: 2px;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+.log-icon:hover { opacity: 1; }
+.log-icon.icon-rare {
+  box-shadow: 0 0 6px 1px #ffff00aa;
+}
+.log-empty { color: #333; text-align: center; padding: 1.5rem; font-size: 0.82rem; }
+
+#roll-log::-webkit-scrollbar { width: 4px; }
+#roll-log::-webkit-scrollbar-track { background: transparent; }
+#roll-log::-webkit-scrollbar-thumb { background: #00ffcc44; border-radius: 2px; }
+#roll-log::-webkit-scrollbar-thumb:hover { background: #00ffccaa; }
 </style>
 </head>
 <body>
 
-<h1>Random Helldivers Stratagems</h1>
-<div id="stratagems" class="card-grid"></div>
-<button id="randomBtn">🎲 Random 4</button>
-<button id="randomBtn2">🎲 Random 8 + Hide Rarity</button>
-<div class="free-rarity-scan">
-  Free Rarity Scan: 
-  <span id="scan-count">1</span>
+<div id="page-layout">
+  <div id="main-content">
+    <h1>Random Helldivers Stratagems</h1>
+    <button id="randomBtnDraft">⚔️ Draft Mode (Pick 1 of 3)</button>
+    <div id="draft-section" class="draft-section"></div>
+    <button id="randomBtn">🎲 Random 4</button>
+    <button id="randomBtn2">🎲 Random 8 + Hide Rarity</button>
+    <div class="free-rarity-scan">
+      Free Rarity Scan:
+      <span id="scan-count">1</span>
+    </div>
+    <div id="stratagems" class="card-grid"></div>
+    <div id="boosters" class="card-grid"></div>
+    <button id="randomBtn3">🎲 Random Boosters</button>
+  </div>
+
+  <div id="roll-log-section">
+    <h2>⚡ RECENT DROPS</h2>
+    <div id="roll-log"><div class="log-empty">Loading...</div></div>
+  </div>
 </div>
-<div id="boosters" class="card-grid"></div>
-<button id="randomBtn3">🎲 Random Boosters</button>
-<button id="randomBtnDraft">⚔️ Draft Mode (Pick 1 of 3)</button>
-<div id="draft-section" class="draft-section"></div>
 
 <script>
+// ── Firebase ──
+const firebaseConfig = {
+  apiKey: "AIzaSyAsIBpUDPfv4xjmIc9MwicNsbbfE9zeFso",
+  authDomain: "wtk-game.firebaseapp.com",
+  databaseURL: "https://wtk-game-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wtk-game",
+  storageBucket: "wtk-game.appspot.com",
+  messagingSenderId: "71061308659",
+  appId: "1:71061308659:web:43897c0162aba760f6e386"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function logRoll(items, mode) {
+  db.ref("rolls").push({
+    names: items.map(s => s.name),
+    mode,
+    ts: firebase.database.ServerValue.TIMESTAMP
+  }).then(() => console.log("Firebase write OK"))
+    .catch(err => console.error("Firebase write failed:", err.message));
+}
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  return h < 24 ? `${h} hr ago` : `${Math.floor(h/24)}d ago`;
+}
+
+function subscribeToLog() {
+  const logEl = document.getElementById("roll-log");
+  const timeout = setTimeout(() => {
+    if (logEl.innerHTML.includes("Loading"))
+      logEl.innerHTML = '<div class="log-empty" style="color:#ff4444">Cannot connect to database. Check Firebase Console — Realtime Database may not be created yet.</div>';
+  }, 6000);
+  db.ref("rolls").orderByChild("ts").limitToLast(30)
+    .on("value", snap => {
+      clearTimeout(timeout);
+      console.log("Firebase listener fired, entries:", snap.numChildren());
+      const entries = [];
+      snap.forEach(child => { entries.push(child.val()); });
+      entries.reverse();
+      console.log("First 3 entries:", JSON.stringify(entries.slice(0, 3)));
+      if (entries.length === 0) {
+        logEl.innerHTML = '<div class="log-empty">No rolls yet — be the first!</div>';
+        return;
+      }
+      logEl.innerHTML = entries.map(e => {
+        if (!e || !e.names) return '';
+        const namesArr = Array.isArray(e.names) ? e.names : Object.values(e.names);
+        const icons = namesArr.map(n => {
+          const icon = iconMap[n];
+          if (!icon) return '';
+          const cls = 'log-icon';
+          return `<img src="${icon}" class="${cls}" title="${n}" />`;
+        }).join("");
+        return `<div class="log-entry">
+          <div class="log-meta">
+            <span class="log-time">${timeAgo(e.ts)}</span>
+            <span class="log-mode">[${e.mode}]</span>
+          </div>
+          <div class="log-icons">${icons}</div>
+        </div>`;
+      }).join("");
+    }, err => {
+      clearTimeout(timeout);
+      logEl.innerHTML = `<div class="log-empty" style="color:#ff4444">DB error: ${err.message}</div>`;
+      console.error("Firebase:", err);
+    });
+}
+
 const stratagems = [
   // Defensive – Sentries
   { name: "Flame Sentry", category: "Defensive", icon: "https://helldivers.wiki.gg/images/Flame_Sentry_Stratagem_Icon.svg?97ca77" },
@@ -510,6 +663,9 @@ const boosters = [
   { name: "Stun Pods", icon: "https://helldivers.wiki.gg/images/Stun_Pods_Booster_Icon.png?4d3461" }
 ]
 
+const iconMap = {};
+[...stratagems, ...boosters].forEach(s => { iconMap[s.name] = s.icon; });
+
 var selectedCount = 0
 var allCardDivs = []
 var scanCount = 1
@@ -565,6 +721,7 @@ function displayStratagems(count = 4, hideRarity = false) {
   scanCountEl.innerHTML = scanCount
 
   const chosen = pickRandomStratagems(stratagems, count);
+  logRoll(chosen, count === 8 ? "Random 8" : "Random 4");
 
   chosen.forEach(s => {
     let div = document.createElement("div");
@@ -641,6 +798,7 @@ function displayBoosters() {
   allCardDivs = []
 
   const chosen = randomBoosters(boosters, 4);
+  logRoll(chosen, "Boosters");
 
   chosen.forEach(s => {
     let div = document.createElement("div");
@@ -671,7 +829,8 @@ function displayBoosters() {
 }
 
 function getCardType(s) {
-  if (s.isVehicle || s.isBackpack)                                                  return { label: "Backpack / Exosuit",   emoji: "🎒", cls: "type-backpack"  };
+  if (s.isVehicle)                                                                  return { label: "Exosuit / Vehicle",    emoji: "🤖", cls: "type-exosuit"  };
+  if (s.isBackpack)                                                                 return { label: "Backpack",             emoji: "🎒", cls: "type-backpack"  };
   if (s.category === "Offensive – Eagle" || s.category === "Offensive – Orbital")  return { label: "Strike",               emoji: "☄️", cls: "type-strike"   };
   if (s.category === "Defensive")                                                   return { label: "Sentry / Emplacement", emoji: "🗼", cls: "type-defensive" };
   return                                                                                   { label: "Support Weapon",       emoji: "🔫", cls: "type-support"  };
@@ -762,6 +921,7 @@ function displayDraftMode() {
       // Reveal selected loadout
       cardDivs.forEach(c => c.classList.add("flipped"));
       loadoutDiv.classList.add("selected");
+      logRoll(loadout, "Draft");
 
       // Reveal AND fade the others
       all.forEach((other, j) => {
@@ -806,7 +966,9 @@ document.getElementById("randomBtn2").addEventListener("click", () => displayStr
 document.getElementById("randomBtn3").addEventListener("click", () => displayBoosters());
 document.getElementById("randomBtnDraft").addEventListener("click", displayDraftMode);
 
-window.onload = displayStratagems;
+window.onload = () => {
+  subscribeToLog();
+};
 </script>
 
 </body>
