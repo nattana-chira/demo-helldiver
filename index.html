@@ -406,9 +406,6 @@
   transition: opacity 0.15s;
 }
 .log-icon:hover { opacity: 1; }
-.log-icon.icon-rare {
-  box-shadow: 0 0 6px 1px #ffff00aa;
-}
 .log-empty { color: #333; text-align: center; padding: 1.5rem; font-size: 0.82rem; }
 
 #roll-log::-webkit-scrollbar { width: 4px; }
@@ -460,8 +457,7 @@ function logRoll(items, mode) {
     names: items.map(s => s.name),
     mode,
     ts: firebase.database.ServerValue.TIMESTAMP
-  }).then(() => console.log("Firebase write OK"))
-    .catch(err => console.error("Firebase write failed:", err.message));
+  }).catch(err => console.error("Firebase write failed:", err.message));
 }
 
 function timeAgo(ts) {
@@ -482,11 +478,9 @@ function subscribeToLog() {
   db.ref("rolls").orderByChild("ts").limitToLast(30)
     .on("value", snap => {
       clearTimeout(timeout);
-      console.log("Firebase listener fired, entries:", snap.numChildren());
       const entries = [];
       snap.forEach(child => { entries.push(child.val()); });
       entries.reverse();
-      console.log("First 3 entries:", JSON.stringify(entries.slice(0, 3)));
       if (entries.length === 0) {
         logEl.innerHTML = '<div class="log-empty">No rolls yet — be the first!</div>';
         return;
