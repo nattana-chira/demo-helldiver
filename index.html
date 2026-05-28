@@ -16,7 +16,7 @@
   }
   h1 {
     text-align: center;
-    margin-bottom: 2rem;
+    margin: 0;
   }
   .stratagems {
     display: flex;
@@ -103,30 +103,157 @@
     color: #66ffcc;
   }
 
-  #randomBtn, #randomBtn2, #randomBtn3 {
-    background: linear-gradient(to right, #ff0080, #7928ca);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 10px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin: 1rem auto;
-    margin-top: 50px;
-    display: block;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 0 12px #ff00ff99;
-  }
+/* ── Action Menu ── */
+#action-menu {
+  display: flex;
+  align-items: stretch;
+  background: #0a0a0a;
+  border: 1px solid #1e1e1e;
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  margin: 0 auto 2rem auto;
+  max-width: 860px;
+  gap: 0;
+  flex-wrap: wrap;
+}
 
-  #randomBtn2 {
-    margin-top: 10px;
-  }
+.menu-group {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 1rem;
+}
 
-  #randomBtn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px #ff00ffcc;
-  }
+.menu-group-label {
+  font-size: 0.6rem;
+  letter-spacing: 4px;
+  color: #444;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #1a1a1a;
+  width: 100%;
+  text-align: center;
+}
 
+.menu-sep {
+  width: 1px;
+  background: #1e1e1e;
+  align-self: stretch;
+  margin: 0.25rem 0;
+  flex-shrink: 0;
+}
+
+.menu-group-btns {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Base menu button */
+.menu-btn {
+  background: #111;
+  border: 1px solid #2a2a2a;
+  color: #ccc;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.2s;
+  min-width: 110px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.menu-btn:hover {
+  background: #181818;
+  transform: translateY(-1px);
+}
+.btn-icon { font-size: 1.1rem; line-height: 1; }
+.btn-main { font-weight: bold; font-size: 0.8rem; }
+.btn-sub  { font-size: 0.62rem; opacity: 0.5; font-weight: normal; letter-spacing: 0.5px; }
+
+#randomBtn, #randomBtn2 {
+  color: #00ffcc;
+  border-color: #00ffcc22;
+  box-shadow: 0 0 8px #00ffcc11;
+}
+#randomBtn:hover, #randomBtn2:hover {
+  border-color: #00ffcc55;
+  box-shadow: 0 0 14px #00ffcc33;
+}
+
+#randomBtnDraft {
+  color: #ff8844;
+  border-color: #ff884422;
+  box-shadow: 0 0 8px #ff884411;
+}
+#randomBtnDraft:hover {
+  border-color: #ff884455;
+  box-shadow: 0 0 14px #ff884433;
+}
+
+#randomBtn3 {
+  color: #88dd44;
+  border-color: #88dd4422;
+  box-shadow: 0 0 8px #88dd4411;
+}
+#randomBtn3:hover {
+  border-color: #88dd4455;
+  box-shadow: 0 0 14px #88dd4433;
+}
+
+/* Scan indicator */
+.scan-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: #555;
+}
+.scan-pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00ffcc;
+  box-shadow: 0 0 6px #00ffcc;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.scan-pip.empty {
+  background: #222;
+  box-shadow: none;
+}
+#scan-count { color: #00ffcc; font-weight: bold; }
+
+/* ── Page Header ── */
+#page-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.title-eyebrow {
+  font-size: 0.65rem;
+  letter-spacing: 6px;
+  color: #ff4444;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+#page-header h1 {
+  font-size: 1.6rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #eee;
+  margin: 0;
+  font-weight: 900;
+}
 
 .card-grid {
   display: flex;
@@ -215,9 +342,6 @@
 
 }
 
-.free-rarity-scan {
- text-align: center;
-}
 
 /* ── Draft Mode ── */
 #randomBtnDraft {
@@ -524,18 +648,57 @@
 
 <div id="page-layout">
   <div id="main-content">
-    <h1>Random Helldivers Stratagems</h1>
-    <button id="randomBtnDraft">⚔️ Draft Mode (Pick 1 of 3)</button>
-    <div id="draft-section" class="draft-section"></div>
-    <button id="randomBtn">🎲 Random 4</button>
-    <button id="randomBtn2">🎲 Random 8 + Hide Rarity</button>
-    <div class="free-rarity-scan">
-      Free Rarity Scan:
-      <span id="scan-count">1</span>
+
+    <div id="page-header">
+      <div class="title-eyebrow">Helldivers 2</div>
+      <h1>Stratagem Randomizer</h1>
     </div>
+
+    <div id="action-menu">
+      <div class="menu-group">
+        <div class="menu-group-label">Stratagems</div>
+        <div class="menu-group-btns">
+          <button id="randomBtn" class="menu-btn">
+            <span class="btn-icon">🎲</span>
+            <span class="btn-main">Random 4</span>
+          </button>
+          <button id="randomBtn2" class="menu-btn">
+            <span class="btn-icon">🎲</span>
+            <span class="btn-main">Random 8</span>
+            <span class="btn-sub">+ Hide Rarity</span>
+          </button>
+        </div>
+        <div class="scan-indicator">
+          <span class="scan-pip" id="scan-pip"></span>
+          <span>Free Scan: <span id="scan-count">1</span></span>
+        </div>
+      </div>
+
+      <div class="menu-sep"></div>
+
+      <div class="menu-group">
+        <div class="menu-group-label">Challenge</div>
+        <button id="randomBtnDraft" class="menu-btn">
+          <span class="btn-icon">⚔️</span>
+          <span class="btn-main">Draft Mode</span>
+          <span class="btn-sub">Pick 1 of 3</span>
+        </button>
+      </div>
+
+      <div class="menu-sep"></div>
+
+      <div class="menu-group">
+        <div class="menu-group-label">Boosters</div>
+        <button id="randomBtn3" class="menu-btn">
+          <span class="btn-icon">💊</span>
+          <span class="btn-main">Random Boosters</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="draft-section" class="draft-section"></div>
     <div id="stratagems" class="card-grid"></div>
     <div id="boosters" class="card-grid"></div>
-    <button id="randomBtn3">🎲 Random Boosters</button>
   </div>
 
   <div id="roll-log-section">
@@ -587,7 +750,13 @@ function timeAgo(ts) {
 }
 
 function getCallsign() {
-  return localStorage.getItem('callsign') || 'Helldiver';
+  let stored = localStorage.getItem('callsign');
+  if (!stored || stored === 'Helldiver') {
+    const code = Math.floor(1000 + Math.random() * 9000);
+    stored = `Helldiver#${code}`;
+    localStorage.setItem('callsign', stored);
+  }
+  return stored;
 }
 
 function initCallsign() {
@@ -605,7 +774,7 @@ function initCallsign() {
   });
 
   function save() {
-    const val = input.value.trim() || 'Helldiver';
+    const val = input.value.trim() || getCallsign();
     localStorage.setItem('callsign', val);
     display.textContent = val;
     input.style.display = 'none';
@@ -855,7 +1024,7 @@ const boosters = [
   { name: "Armed Resupply Pods", icon: "https://helldivers.wiki.gg/images/Armed_Resupply_Pods_Booster_Icon.svg?60e831" },
   { name: "Sample Extricator", icon: "https://helldivers.wiki.gg/images/Sample_Extricator_Booster_Icon.svg?13722c" },
   { name: "Sample Scanner", icon: "https://helldivers.wiki.gg/images/b/bb/Sample_Scanner_Booster_Icon.svg?894450" },
-  { name: "Stun Pods", icon: "https://helldivers.wiki.gg/images/Stun_Pods_Booster_Icon.png?4d3461" }
+  { name: "Stun Pods", icon: "https://helldivers.wiki.gg/images/Stun_Pods_Booster_Icon.svg?60fda5" }
 ]
 
 const iconMap = {};
@@ -865,6 +1034,12 @@ var selectedCount = 0
 var allCardDivs = []
 var scanCount = 1
 var scanCountEl = document.getElementById("scan-count")
+var scanPipEl = document.getElementById("scan-pip")
+
+function updateScanUI() {
+  scanCountEl.innerHTML = scanCount
+  if (scanPipEl) scanPipEl.classList.toggle("empty", scanCount <= 0)
+}
 
 // Pick 4 unique random stratagems
 function pickRandomStratagems(arr, count) {
@@ -907,13 +1082,20 @@ function randomBoosters(arr, count) {
   return result;
 }
 
+function clearAllModes() {
+  document.getElementById("stratagems").innerHTML = "";
+  document.getElementById("boosters").innerHTML = "";
+  document.getElementById("draft-section").innerHTML = "";
+}
+
 function displayStratagems(count = 4, hideRarity = false) {
+  clearAllModes();
   const container = document.getElementById("stratagems");
   container.innerHTML = "";
   selectedCount = 0
   allCardDivs = []
   scanCount = count > 4 ? 1 : 0
-  scanCountEl.innerHTML = scanCount
+  updateScanUI()
 
   const chosen = pickRandomStratagems(stratagems, count);
   logRoll(chosen, count === 8 ? "Random 8" : "Random 4");
@@ -953,7 +1135,7 @@ function displayStratagems(count = 4, hideRarity = false) {
       scanCount--
 
       if (scanCount >= 0) {
-        scanCountEl.innerHTML = scanCount
+        updateScanUI()
 
         div.classList.remove("weak")
         if (rareStratagems.includes(s.name))
@@ -994,6 +1176,7 @@ function displayStratagems(count = 4, hideRarity = false) {
 }
 
 function displayBoosters() {
+  clearAllModes();
   const container = document.getElementById("boosters");
   container.innerHTML = "";
   allCardDivs = []
@@ -1086,6 +1269,7 @@ function buildDraftCardHTML(s) {
 }
 
 function displayDraftMode() {
+  clearAllModes();
   const section = document.getElementById("draft-section");
   section.innerHTML = "";
   let picked = false;

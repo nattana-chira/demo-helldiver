@@ -85,6 +85,10 @@ Picks `count` unique random stratagems with **balance constraints** (recursive r
 
 Simple unique random pick, no constraints.
 
+### `clearAllModes()`
+
+Clears all three output containers (`#stratagems`, `#boosters`, `#draft-section`) before rendering a new mode. Called at the top of `displayStratagems`, `displayBoosters`, and `displayDraftMode` so switching modes never leaves stale cards behind.
+
 ### `displayStratagems(count, hideRarity)`
 
 Main render function. No longer called on page load — user must click a button first.
@@ -92,7 +96,7 @@ Main render function. No longer called on page load — user must click a button
 | Button | Call |
 |--------|------|
 | Random 4 | `displayStratagems()` → `(4, false)` |
-| Random 8 + Hide Rarity | `displayStratagems(8, true)` |
+| Random 8 | `displayStratagems(8, true)` |
 | Random Boosters | `displayBoosters()` |
 
 Each call also writes the roll to Firebase via `logRoll()`.
@@ -155,15 +159,17 @@ Selecting a loadout also logs it to Firebase as `[Draft]`.
 
 ## Callsign
 
-Stored in `localStorage` under key `callsign`. Defaults to `"Helldiver"`.
+Stored in `localStorage` under key `callsign`.
 
+- On first visit (or if stored value is the bare string `"Helldiver"`), `getCallsign()` auto-generates a tagged default: `Helldiver#XXXX` (random 4-digit code, 1000–9999) and persists it immediately
+- Players with a custom name are unaffected
 - Displayed in the sidebar as `👤 <name> ✏️`
-- Entire bar is clickable — switches to an inline text input on click, saves on Enter/blur
+- Entire bar is clickable — switches to an inline text input on click, saves on Enter/blur; clearing the input falls back to the existing stored callsign (not bare `"Helldiver"`)
 - Included in every Firebase roll entry as `callsign` field
 - Shown in each log entry in cyan before the timestamp
 
 ### Functions
-- `getCallsign()` — reads from localStorage
+- `getCallsign()` — reads from localStorage; assigns `Helldiver#XXXX` on first visit or bare default
 - `initCallsign()` — wires up the display/input toggle, called from `window.onload`
 
 ---
@@ -221,16 +227,26 @@ Below the log, a `#hot-list` section shows the top 3 most-rolled stratagems from
 ```
 #page-layout (flex row)
 ├── #main-content (flex: 1)
-│   ├── Draft Mode button + #draft-section  ← top
-│   ├── Random 4 / Random 8 buttons
+│   ├── #page-header (title + eyebrow)
+│   ├── #action-menu (horizontal panel, 3 grouped sections)
+│   │   ├── STRATAGEMS — Random 4 / Random 8 buttons + scan indicator
+│   │   ├── CHALLENGE  — Draft Mode button
+│   │   └── BOOSTERS   — Random Boosters button
+│   ├── #draft-section
 │   ├── #stratagems card grid
-│   ├── #boosters card grid
-│   └── Random Boosters button
+│   └── #boosters card grid
 └── #roll-log-section (280px sticky sidebar)
     └── #roll-log (scrollable, custom cyan scrollbar)
 ```
 
 Page loads empty — no stratagems shown until user clicks a button.
+
+### `#action-menu` button styling
+
+Each button is a dark panel card (`.menu-btn`) with a colored glow border per section:
+- Stratagems → cyan (`#00ffcc`)
+- Challenge/Draft → orange (`#ff8844`)
+- Boosters → green (`#88dd44`)
 
 ---
 
